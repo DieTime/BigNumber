@@ -44,7 +44,7 @@ public:
     static auto schoolMultiply(BigInt l, BigInt r) -> BigInt;
     static auto karatsubaMultiply(BigInt l, BigInt r) -> BigInt;
     static auto FFTMultiply(BigInt l, BigInt r) -> BigInt;
-    static auto multiplyByUint(BigInt l, long long r) -> BigInt;
+    static auto multiplyByLongLong(BigInt l, long long r) -> BigInt;
 };
 
 #endif

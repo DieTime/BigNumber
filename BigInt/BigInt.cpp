@@ -263,7 +263,7 @@ auto BigInt::FFTMultiply(BigInt l, BigInt r) -> BigInt {
     return result.removeZeros();
 }
 
-auto BigInt::multiplyByUint(BigInt l, long long r) -> BigInt {
+auto BigInt::multiplyByLongLong(BigInt l, long long r) -> BigInt {
     if (r > l.BASE) return l;
     BigInt result;
     if (l.isNegative) result.isNegative = true;
