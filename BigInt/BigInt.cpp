@@ -157,7 +157,7 @@ auto BigInt::schoolMultiply(BigInt l, BigInt r) -> BigInt {
     if (l.isNegative && r.isNegative) return schoolMultiply((-l), (-r));
     BigInt result, temp;
     for (long long i = 0; i < r.digits.size(); i++) {
-        temp = multiplyByUint(l, r.digits[i]);
+        temp = multiplyByLongLong(l, r.digits[i]);
         for (long long j = 0; j < i; j++) {
             temp.digits.push_front(0);
         }
