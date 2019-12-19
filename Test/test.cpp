@@ -42,7 +42,7 @@ void testSummation(const char* inputPath, const char* outputPath, int n = 100) {
     }
 }
 
-void testSubtraction(const char* inputPath, const char* outputPath) {
+void testSubtraction(const char* inputPath, const char* outputPath, int n = 100) {
     std::cout << "The subtraction test starts...\n";
 
     std::ifstream input(inputPath);
@@ -53,7 +53,7 @@ void testSubtraction(const char* inputPath, const char* outputPath) {
     BigInt a, b;
 
     clock_t start = clock();
-    while (input.peek() != EOF) {
+    while (input.peek() != EOF && n != count) {
         count++;
         input >> first >> second >> result;
         a = first;
