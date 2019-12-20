@@ -13,11 +13,11 @@ BigInt::BigInt(std::string value) {
 			isNegative = true;
 			value = value.substr(1);
 		}
-		for (long long i = value.length(); i > 0; i -= BigInt::BASE_LENGTH) {
+		for (long long i = (long long)value.length(); i > 0; i -= BigInt::BASE_LENGTH) {
 			if (i < BigInt::BASE_LENGTH) digits.push_back(strtol(value.substr(0, i).c_str(), nullptr, 10));
 			else digits.push_back(strtol(value.substr(i - BigInt::BASE_LENGTH, BigInt::BASE_LENGTH).c_str(), nullptr, 10));
 		}
-		this->removeZeros();
+		removeZeros();
 	}
 }
 
@@ -27,7 +27,7 @@ auto operator+(BigInt l, BigInt r) -> BigInt {
 	if (l.isNegative && r.isNegative) return -((-l) + (-r));
 	BigInt result;
 	long long carrier = 0, x = 0, y = 0, sum = 0;
-	for (long long i = 0; i < std::max(l.digits.size(), r.digits.size()); i++) {
+	for (long long i = 0; i < (long long)std::max(l.digits.size(), r.digits.size()); i++) {
 		x = (i < l.digits.size()) ? l.digits[i] : 0;
 		y = (i < r.digits.size()) ? r.digits[i] : 0;
 		sum = x + y + carrier;
@@ -48,7 +48,7 @@ auto operator-(BigInt l, BigInt r) -> BigInt {
 	if (l == r) return BigInt();
 	BigInt result;
     long long carrier = 0, diff = 0;
-	for (long long i = 0; i < l.digits.size(); i++) {
+	for (long long i = 0; i < (long long)l.digits.size(); i++) {
 		diff = l.digits[i] - carrier - (i < r.digits.size() ? r.digits[i] : 0);
 		if (diff < 0) {
 			carrier = 1;
@@ -62,11 +62,12 @@ auto operator-(BigInt l, BigInt r) -> BigInt {
 	return result.removeZeros();
 }
 
-auto operator*(const BigInt& l, const BigInt& r) -> BigInt {
-    long long length = std::max(l.digits.size(), r.digits.size()) * l.BASE_LENGTH;
-    if (length < 585) return BigInt::schoolMultiply(l, r);
-    else if (length >=585 && length < 995) return BigInt::karatsubaMultiply(l, r);
-    else return BigInt::FFTMultiply(l, r);
+auto operator*(BigInt l, BigInt r) -> BigInt {
+    if ((l.digits.size() == 1 && l.digits[0] == 0) || (r.digits.size() == 1 && r.digits[0] == 0)) return BigInt("0");
+    if (l.isNegative && !r.isNegative) return -((-l) * r);
+    if (!l.isNegative && r.isNegative) return -(l * (-r));
+    if (l.isNegative && r.isNegative) return (-l) * (-r);
+    return BigInt::FFTMultiply(l, r);
 }
 
 auto BigInt::operator=(const BigInt& r) -> BigInt& = default;
@@ -77,14 +78,14 @@ auto BigInt::operator=(std::string r) -> BigInt& {
     return *this;
 }
 
-auto operator<(BigInt& l, BigInt& r) -> bool {
+auto operator<(const BigInt& l,const BigInt& r) -> bool {
 	if (l.isNegative && !r.isNegative) return true;
 	else if (!l.isNegative && r.isNegative) return false;
 	else {
 		if (l.digits.size() < r.digits.size()) return true;
 		else if (l.digits.size() > r.digits.size()) return false;
 		else {
-			for (long long i = l.digits.size() - 1; i >= 0; i--) {
+			for (long long i = (long long)l.digits.size() - 1; i >= 0; i--) {
 				if (l.digits[i] < r.digits[i]) return true;
 				else if (l.digits[i] > r.digits[i]) return false;
 			}
@@ -93,11 +94,11 @@ auto operator<(BigInt& l, BigInt& r) -> bool {
 	}
 }
 
-auto operator>(BigInt& l, BigInt& r) -> bool {
+auto operator>(const BigInt& l,const BigInt& r) -> bool {
 	return r < l;
 }
 
-auto operator==(BigInt& l, BigInt& r) -> bool {
+auto operator==(const BigInt& l,const BigInt& r) -> bool {
 	return (!(l < r) && !(l > r));
 }
 
@@ -110,10 +111,10 @@ auto BigInt::operator+() -> BigInt& {
 	return *this;
 }
 
-auto operator<<(std::ostream& os, BigInt num) -> std::ostream& {
+auto operator<<(std::ostream& os,const BigInt& num) -> std::ostream& {
 	if (num.isNegative) os << "-";
 	std::cout << num.digits[num.digits.size() - 1];
-	for (long long i = num.digits.size() - 2; i >= 0; i--) {
+	for (long long i = (long long)num.digits.size() - 2; i >= 0; i--) {
 		std::cout << std::setfill('0') << std::setw(num.BASE_LENGTH) << num.digits[i];
 	}
 	return os;
@@ -122,10 +123,7 @@ auto operator<<(std::ostream& os, BigInt num) -> std::ostream& {
 auto operator>>(std::istream& os, BigInt& num) -> std::istream& {
 	std::string input;
 	os >> input;
-	BigInt newValue(input);
-	num.BASE = newValue.BASE;
-	num.isNegative = newValue.isNegative;
-	num.digits = newValue.digits;
+	num = BigInt(input);
 	return os;
 }
 
@@ -134,9 +132,9 @@ auto BigInt::str() -> std::string {
 	if (isNegative) result += "-";
 	strValue = std::to_string(digits[digits.size() - 1]);
 	result += strValue;
-	for (long long i = digits.size() - 2; i >= 0; i--) {
+	for (long long i = (long long)digits.size() - 2; i >= 0; i--) {
 		strValue = std::to_string(digits[i]);
-		for (long long j = strValue.size(); j < BigInt::BASE_LENGTH; j++) {
+		for (long long j = (long long)strValue.size(); j < (long long)BigInt::BASE_LENGTH; j++) {
 			result += "0";
 		}
 		result += strValue;
@@ -144,19 +142,15 @@ auto BigInt::str() -> std::string {
 	return result;
 }
 
-auto BigInt::removeZeros() -> BigInt {
+auto BigInt::removeZeros() -> BigInt& {
 	while (digits.back() == 0 && digits.size() > 1) digits.pop_back();
 	if (digits.size() == 1 && digits[0] == 0) isNegative = false;
 	return *this;
 }
 
-auto BigInt::schoolMultiply(BigInt l, BigInt r) -> BigInt {
-    if ((l.digits.size() == 1 && l.digits[0] == 0) || (r.digits.size() == 1 && r.digits[0] == 0)) return BigInt("0");
-    if (l.isNegative && !r.isNegative) return -schoolMultiply((-l), r);
-    if (!l.isNegative && r.isNegative) return -schoolMultiply(l, (-r));
-    if (l.isNegative && r.isNegative) return schoolMultiply((-l), (-r));
+auto BigInt::schoolMultiply(const BigInt& l, BigInt r) -> BigInt {
     BigInt result, temp;
-    for (long long i = 0; i < r.digits.size(); i++) {
+    for (long long i = 0; i < (long long)r.digits.size(); i++) {
         temp = multiplyByLongLong(l, r.digits[i]);
         for (long long j = 0; j < i; j++) {
             temp.digits.push_front(0);
@@ -166,18 +160,13 @@ auto BigInt::schoolMultiply(BigInt l, BigInt r) -> BigInt {
     return result.removeZeros();
 }
 
-auto BigInt::karatsubaMultiply(BigInt l, BigInt r) -> BigInt {
-    if ((l.digits.size() == 1 && l.digits[0] == 0) || (r.digits.size() == 1 && r.digits[0] == 0)) return BigInt("0");
-    if (l.isNegative && !r.isNegative) return -karatsubaMultiply((-l), r);
-    if (!l.isNegative && r.isNegative) return -karatsubaMultiply(l, (-r));
-    if (l.isNegative && r.isNegative) return karatsubaMultiply((-l), (-r));
-
+auto BigInt::karatsubaMultiply(const BigInt& l, const BigInt& r) -> BigInt {
     const BigInt min = l.digits.size() < r.digits.size() ? l : r,
                  max = l.digits.size() < r.digits.size() ? r : l;
 
     if (min.digits.size() < 64) return schoolMultiply(max, min);
     else {
-        long long n = max.digits.size() / 2;
+        long long n = (long long)(max.digits.size() / 2);
         BigInt max1, max2, min1, min2;
         max1.digits = {max.digits.begin() + n, max.digits.end()};
         max2.digits = {max.digits.begin(), max.digits.begin() + n};
@@ -206,7 +195,7 @@ auto BigInt::karatsubaMultiply(BigInt l, BigInt r) -> BigInt {
 }
 
 void FFT(std::vector<base>& a, bool invert) {
-    int n = (int) a.size();
+    long long n = (long long)a.size();
     if (n == 1) return;
 
     std::vector<base> a0 (n/2),  a1 (n/2);
@@ -217,23 +206,20 @@ void FFT(std::vector<base>& a, bool invert) {
     FFT(a0, invert);
     FFT(a1, invert);
 
-    double ang = 2 * 3.14159265358979323846 / n * (invert ? -1 : 1);
+    double ang = 2 * 3.14159265358979323846 / (double)n * (invert ? -1 : 1);
     base w (1),  wn (cos(ang), sin(ang));
     for (long long i=0; i<n/2; ++i) {
         a[i] = a0[i] + w * a1[i];
         a[i+n/2] = a0[i] - w * a1[i];
-        if (invert)
-            a[i] /= 2,  a[i+n/2] /= 2;
+        if (invert) {
+            a[i] /= 2;
+            a[i+n/2] /= 2;
+        }
         w *= wn;
     }
 }
 
-auto BigInt::FFTMultiply(BigInt l, BigInt r) -> BigInt {
-    if ((l.digits.size() == 1 && l.digits[0] == 0) || (r.digits.size() == 1 && r.digits[0] == 0)) return BigInt("0");
-    if (l.isNegative && !r.isNegative) return -FFTMultiply((-l), r);
-    if (!l.isNegative && r.isNegative) return -FFTMultiply(l, (-r));
-    if (l.isNegative && r.isNegative) return FFTMultiply((-l), (-r));
-
+auto BigInt::FFTMultiply(const BigInt& l,const BigInt& r) -> BigInt {
     long long n = 1;
     std::vector<base> fa(l.digits.begin(), l.digits.end()), fb(r.digits.begin(), r.digits.end());
     while (n < std::max(l.digits.size(), r.digits.size())) n *= 2;
@@ -263,12 +249,12 @@ auto BigInt::FFTMultiply(BigInt l, BigInt r) -> BigInt {
     return result.removeZeros();
 }
 
-auto BigInt::multiplyByLongLong(BigInt l, long long r) -> BigInt {
+auto BigInt::multiplyByLongLong(const BigInt& l, long long r) -> BigInt {
     if (r > l.BASE) return l;
     BigInt result;
     if (l.isNegative) result.isNegative = true;
     long long carrier = 0, multi = 0;
-    for (long long i = 0; i < l.digits.size(); i++) {
+    for (long long i = 0; i < (long long)l.digits.size(); i++) {
         multi = l.digits[i]*r + carrier;
         carrier = multi / l.BASE;
         multi %= l.BASE;
