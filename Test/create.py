@@ -1,18 +1,15 @@
 import random
+from decimal import *
 
 random.seed()
-f = open("Cases/multiplication.txt", "w")
+f = open("Cases/10000000digits.txt", "w")
 
-for i in range(100):
-    length = random.randint(1, 8192)
-    a = random.getrandbits(int(20/6*length))
-    sign = random.randint(0, 1)
-    if sign == 0:
-        a = -a
-    b = random.getrandbits(int(20/6*length))
-    sign = random.randint(0, 1)
-    if sign == 0:
-        b = -b
-    f.write(str(a) + " " + str(b) + " " + str(a * b) + "\n")
+a = "6123809001"
+l = []
+for i in range(1000000):
+    l.append(a)
+str = ''.join(l)
+f.write(str)
+f.close()
 
-print("OK")
+print("OK!")

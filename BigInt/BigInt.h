@@ -13,11 +13,9 @@
 #include <utility>
 #include <vector>
 
-typedef std::complex<double> base;
-
 class BigInt {
 private:
-    int BASE = 1E5;
+    int BASE = 1E2;
     int BASE_LENGTH;
     bool isNegative = false;
     std::deque<long long> digits;

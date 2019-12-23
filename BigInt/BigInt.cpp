@@ -13,9 +13,9 @@ BigInt::BigInt(std::string value) {
 			isNegative = true;
 			value = value.substr(1);
 		}
-		for (long long i = (long long)value.length(); i > 0; i -= BigInt::BASE_LENGTH) {
-			if (i < BigInt::BASE_LENGTH) digits.push_back(strtol(value.substr(0, i).c_str(), nullptr, 10));
-			else digits.push_back(strtol(value.substr(i - BigInt::BASE_LENGTH, BigInt::BASE_LENGTH).c_str(), nullptr, 10));
+		for (long long i = (long long)value.length(); i > 0; i -= (long long)BigInt::BASE_LENGTH) {
+			if (i < (long long)BigInt::BASE_LENGTH) digits.push_back(strtol(value.substr(0, i).c_str(), nullptr, 10));
+			else digits.push_back(strtol(value.substr(i - (long long)BigInt::BASE_LENGTH, (long long)BigInt::BASE_LENGTH).c_str(), nullptr, 10));
 		}
 		removeZeros();
 	}
@@ -194,11 +194,11 @@ auto BigInt::karatsubaMultiply(const BigInt& l, const BigInt& r) -> BigInt {
     }
 }
 
-void FFT(std::vector<base>& a, bool invert) {
+void FFT(std::vector<std::complex<double>>& a, bool invert) {
     long long n = (long long)a.size();
     if (n == 1) return;
 
-    std::vector<base> a0 (n/2),  a1 (n/2);
+    std::vector<std::complex<double>> a0 (n/2),  a1 (n/2);
     for (long long i=0, j=0; i<n; i+=2, ++j) {
         a0[j] = a[i];
         a1[j] = a[i+1];
@@ -207,7 +207,7 @@ void FFT(std::vector<base>& a, bool invert) {
     FFT(a1, invert);
 
     double ang = 2 * 3.14159265358979323846 / (double)n * (invert ? -1 : 1);
-    base w (1),  wn (cos(ang), sin(ang));
+    std::complex<double> w (1),  wn (cos(ang), sin(ang));
     for (long long i=0; i<n/2; ++i) {
         a[i] = a0[i] + w * a1[i];
         a[i+n/2] = a0[i] - w * a1[i];
@@ -219,19 +219,49 @@ void FFT(std::vector<base>& a, bool invert) {
     }
 }
 
+void fft (std::vector<std::complex<double>> & a, bool invert) {
+    int n = (int) a.size();
+
+    for (int i=1, j=0; i<n; ++i) {
+        int bit = n >> 1;
+        for (; j>=bit; bit>>=1)
+            j -= bit;
+        j += bit;
+        if (i < j)
+            swap (a[i], a[j]);
+    }
+
+    for (int len=2; len<=n; len<<=1) {
+        double ang = 2*3.14159265358979323846/len * (invert ? -1 : 1);
+        std::complex<double> wlen (cos(ang), sin(ang));
+        for (int i=0; i<n; i+=len) {
+            std::complex<double> w (1);
+            for (int j=0; j<len/2; ++j) {
+                std::complex<double> u = a[i+j],  v = a[i+j+len/2] * w;
+                a[i+j] = u + v;
+                a[i+j+len/2] = u - v;
+                w *= wlen;
+            }
+        }
+    }
+    if (invert)
+        for (int i=0; i<n; ++i)
+            a[i] /= n;
+}
+
 auto BigInt::FFTMultiply(const BigInt& l,const BigInt& r) -> BigInt {
     long long n = 1;
-    std::vector<base> fa(l.digits.begin(), l.digits.end()), fb(r.digits.begin(), r.digits.end());
+    std::vector<std::complex<double>> fa(l.digits.begin(), l.digits.end()), fb(r.digits.begin(), r.digits.end());
     while (n < std::max(l.digits.size(), r.digits.size())) n *= 2;
     n *= 2;
 
     fa.resize(n),  fb.resize(n);
 
-    FFT(fa, false);
-    FFT(fb, false);
+    fft(fa, false);
+    fft(fb, false);
 
     for (long long i=0; i<n; ++i) fa[i] *= fb[i];
-    FFT(fa, true);
+    fft(fa, true);
 
     BigInt result;
     result.digits.resize(n);
