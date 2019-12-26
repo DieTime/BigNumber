@@ -26,7 +26,7 @@ random.seed()
 
 f = open("Cases/multiplication.txt", "w")
 
-for i in range(1000):
+for i in range(100):
     length = random.randint(1, 20000)
 
     a = random.getrandbits(int(20 / 6 * length))
