@@ -75,7 +75,7 @@ auto operator-(BigInt l, BigInt r) -> BigInt {
 }
 
 auto operator*(const BigInt &l,const BigInt& r) -> BigInt {
-    return BigInt::karatsubaMultiply(l, r);
+    return BigInt::FFTMultiply(l, r);
 }
 
 auto BigInt::operator=(const BigInt& r) -> BigInt& = default;

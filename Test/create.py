@@ -24,41 +24,22 @@ random.seed()
 #     f.close()
 
 
-# f = open("Cases/multiplication8192" + ".txt", "w")
-#
-# for i in range(1000):
-#     length = 8192  # random.randint(1, 20000)
-#
-#     a = random.getrandbits(int(20 / 6 * length))
-#     sign = random.randint(0, 1)
-#     if sign == 0:
-#         a = -a
-#
-#     b = random.getrandbits(int(20 / 6 * length))
-#     sign = random.randint(0, 1)
-#     if sign == 0:
-#         b = -b
-#
-#     f.write(str(a) + " " + str(b) + " " + str(a * b) + "\n")
-#
-# f.close()
+f = open("Cases/multiplication.txt", "w")
 
-f = open("Cases/multiplication1000000" + ".txt", "w")
+for i in range(1000):
+    length = random.randint(1, 20000)
 
-length = 200000  # random.randint(1, 20000)
-sub = "9999999999"
-l = []
+    a = random.getrandbits(int(20 / 6 * length))
+    sign = random.randint(0, 1)
+    if sign == 0:
+        a = -a
 
-for i in range(length):
-    l.append(sub)
+    b = random.getrandbits(int(20 / 6 * length))
+    sign = random.randint(0, 1)
+    if sign == 0:
+        b = -b
 
-sub = ''.join(l)
-print(len(sub))
-num = int(sub)
-print("create num")
-
-f.write(sub + " " + sub + " " + str(num * num))
+    f.write(str(a) + " " + str(b) + " " + str(a * b) + "\n")
 
 f.close()
 
-print("OK")
