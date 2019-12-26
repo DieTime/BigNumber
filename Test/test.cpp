@@ -23,7 +23,7 @@ void testSummation(const char* inputPath, const char* outputPath, int n = 100) {
         myResult = (a + b).str();
         if (myResult != result) {
             errors++;
-            output << first << " " << second << " " << myResult << std::endl;
+            output << first << " " << second << " " << result << " " << myResult << std::endl;
         }
     }
     if (errors) {
@@ -61,7 +61,7 @@ void testSubtraction(const char* inputPath, const char* outputPath, int n = 100)
         myResult = (a - b).str();
         if (myResult != result) {
             errors++;
-            output << first << " " << second << " " << result << myResult << std::endl;
+            output << first << " " << second << " " << result << " " << myResult << std::endl;
         }
     }
     if (errors > 0) {

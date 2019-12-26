@@ -15,10 +15,10 @@
 
 class BigInt {
 private:
-    int BASE = 1E2;
+    int BASE = 1E1;
     int BASE_LENGTH;
     bool isNegative = false;
-    std::deque<long long> digits;
+    std::deque<int> digits;
 public:
     BigInt();
     explicit BigInt(std::string value);
@@ -27,10 +27,10 @@ public:
     friend auto operator>>(std::istream& os, BigInt& num) -> std::istream&;
     friend auto operator+(BigInt l, BigInt r) -> BigInt;
     friend auto operator-(BigInt l, BigInt r) -> BigInt;
-    friend auto operator*(BigInt l, BigInt r) -> BigInt;
-    friend auto operator<(const BigInt& l,const BigInt& r) -> bool;
-    friend auto operator>(const BigInt& l,const BigInt& r) -> bool;
-    friend auto operator==(const BigInt& l,const BigInt& r) -> bool;
+    friend auto operator*(const BigInt& l, const BigInt& r) -> BigInt;
+    friend auto operator<(BigInt& l, BigInt& r) -> bool;
+    friend auto operator>(BigInt& l, BigInt& r) -> bool;
+    friend auto operator==(BigInt& l, BigInt& r) -> bool;
 
     auto operator-() -> BigInt&;
     auto operator+() -> BigInt&;
@@ -39,10 +39,10 @@ public:
     auto str() -> std::string;
     auto removeZeros() -> BigInt&;
 
-    static auto schoolMultiply(const BigInt& l, BigInt r) -> BigInt;
-    static auto karatsubaMultiply(const BigInt& l, const BigInt& r) -> BigInt;
-    static auto FFTMultiply(const BigInt& l, const BigInt& r) -> BigInt;
-    static auto multiplyByLongLong(const BigInt& l, long long r) -> BigInt;
+    static auto schoolMultiply(BigInt l, BigInt r) -> BigInt;
+    static auto karatsubaMultiply(BigInt l, BigInt r) -> BigInt;
+    static auto FFTMultiply(BigInt l, BigInt r) -> BigInt;
+    static auto multiplyByInt(BigInt l, int r) -> BigInt;
 };
 
 #endif
