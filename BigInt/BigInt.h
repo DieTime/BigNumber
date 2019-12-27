@@ -23,26 +23,29 @@ public:
     BigInt();
     explicit BigInt(std::string value);
 
-    friend auto operator<<(std::ostream& os,const BigInt& num) -> std::ostream&;
-    friend auto operator>>(std::istream& os, BigInt& num) -> std::istream&;
-    friend auto operator+(BigInt l, BigInt r) -> BigInt;
-    friend auto operator-(BigInt l, BigInt r) -> BigInt;
-    friend auto operator*(const BigInt& l, const BigInt& r) -> BigInt;
-    friend auto operator<(BigInt& l, BigInt& r) -> bool;
-    friend auto operator>(BigInt& l, BigInt& r) -> bool;
-    friend auto operator==(BigInt& l, BigInt& r) -> bool;
+    friend std::ostream & operator<<(std::ostream& os, BigInt num);
+    friend std::istream & operator>>(std::istream& os, BigInt num);
+    friend BigInt operator+(const BigInt &l, const BigInt &r);
+    friend BigInt operator-(const BigInt &l, const BigInt &r);
+    friend BigInt operator*(const BigInt &l, const BigInt &r);
+    friend bool operator<(const BigInt &l, const BigInt &r);
+    friend bool operator<=(const BigInt &l, const BigInt &r);
+    friend bool operator>(const BigInt &l, const BigInt &r);
+    friend bool operator>=(const BigInt &l, const BigInt &r);
+    friend bool operator==(const BigInt &l, const BigInt &r);
+    friend bool operator!=(const BigInt &l,const BigInt &r);
+    BigInt & operator=(std::string r);
+    BigInt & operator=(const BigInt &r);
+    BigInt operator+() const &;
+    BigInt operator-() const &;
 
-    auto operator-() -> BigInt&;
-    auto operator+() -> BigInt&;
-    auto operator=(const BigInt& r) -> BigInt&;
-    auto operator=(std::string r) -> BigInt&;
-    auto str() -> std::string;
-    auto removeZeros() -> BigInt&;
+    std::string str();
+    BigInt & removeZeros();
 
-    static auto schoolMultiply(BigInt l, BigInt r) -> BigInt;
-    static auto karatsubaMultiply(BigInt l, BigInt r) -> BigInt;
-    static auto FFTMultiply(BigInt l, BigInt r) -> BigInt;
-    static auto multiplyByInt(BigInt l, int r) -> BigInt;
+    static BigInt multiplyByInt(const BigInt& l, int r);
+    static BigInt schoolMultiply(const BigInt& l, const BigInt& r);
+    static BigInt karatsubaMultiply(const BigInt& l, const BigInt& r);
+    static BigInt FFTMultiply(const BigInt& l, const BigInt& r);
 };
 
 #endif
