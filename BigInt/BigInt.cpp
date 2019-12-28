@@ -6,8 +6,9 @@ BigInt::BigInt() {
 }
 
 BigInt::BigInt(std::string value) {
-    BASE_LENGTH = (int) log10(BASE);
+    BASE_LENGTH = (int)log10(BASE);
     if (value.empty()) digits.push_back(0);
+    else if (value == "NaN") digits.push_back(std::numeric_limits<int>::quiet_NaN());
     else {
         if (value[0] == '-') {
             isNegative = true;
@@ -28,6 +29,18 @@ BigInt::BigInt(std::string value) {
 
         removeZeros();
     }
+}
+
+std::ostream & operator<<(std::ostream &os, BigInt num) {
+    os << num.str();
+    return os;
+}
+
+std::istream & operator>>(std::istream &os, BigInt& num) {
+    std::string input;
+    os >> input;
+    num = BigInt(input);
+    return os;
 }
 
 BigInt operator+(const BigInt &l, const BigInt &r) {
@@ -68,21 +81,6 @@ BigInt operator-(const BigInt &l, const BigInt &r) {
 
 BigInt operator*(const BigInt &l, const BigInt &r) {
     return BigInt::FFTMultiply(l, r);
-}
-
-BigInt& BigInt::operator=(const BigInt &r) {
-    if (this == &r) return *this;
-    BASE = r.BASE;
-    BASE_LENGTH = r.BASE_LENGTH;
-    digits = r.digits;
-    isNegative = r.isNegative;
-    return *this;
-}
-
-BigInt& BigInt::operator=(std::string r) {
-    BigInt temp(std::move(r));
-    *this = temp;
-    return *this;
 }
 
 bool operator<(const BigInt &l, const BigInt &r) {
@@ -132,16 +130,23 @@ bool operator!=(const BigInt &l, const BigInt &r) {
     return !(l == r);
 }
 
-std::ostream & operator<<(std::ostream &os, BigInt num) {
-    os << num.str();
-    return os;
+BigInt& BigInt::operator=(std::string r) {
+    BigInt temp(std::move(r));
+    *this = temp;
+    return *this;
 }
 
-std::istream & operator>>(std::istream &os, BigInt num) {
-    std::string input;
-    os >> input;
-    num = BigInt(input);
-    return os;
+BigInt& BigInt::operator=(const BigInt &r) {
+    if (this == &r) return *this;
+    BASE = r.BASE;
+    BASE_LENGTH = r.BASE_LENGTH;
+    digits = r.digits;
+    isNegative = r.isNegative;
+    return *this;
+}
+
+BigInt BigInt::operator+() const & {
+    return *this;
 }
 
 BigInt BigInt::operator-() const & {
@@ -150,12 +155,31 @@ BigInt BigInt::operator-() const & {
     return b;
 }
 
-BigInt BigInt::operator+() const & {
+BigInt & BigInt::operator++() {
+    *this = *this + BigInt("1");
     return *this;
+}
+
+BigInt & BigInt::operator--() {
+    *this = *this - BigInt("1");
+    return *this;
+}
+
+const BigInt BigInt::operator++(int) {
+    BigInt temp = *this;
+    *this = *this + BigInt("1");
+    return temp;
+}
+
+const BigInt BigInt::operator--(int) {
+    BigInt temp = *this;
+    *this = *this - BigInt("1");
+    return temp;
 }
 
 std::string BigInt::str() {
     std::string result, strValue;
+    if (digits.size() == 1 && digits.back() == std::numeric_limits<int>::quiet_NaN()) return "NaN";
     if (isNegative) result += "-";
     strValue = std::to_string(digits[digits.size() - 1]);
     result += strValue;
@@ -171,6 +195,31 @@ BigInt& BigInt::removeZeros() {
     while (digits.back() == 0 && digits.size() > 1) digits.pop_back();
     if (digits.size() == 1 && digits[0] == 0) isNegative = false;
     return *this;
+}
+
+BigInt BigInt::abs(const BigInt &value) {
+    BigInt result = value;
+    result.isNegative = false;
+    return result;
+}
+
+BigInt BigInt::multiplyByInt(const BigInt& l, int r) {
+    if (r > l.BASE || r < 0) return l;
+    BigInt result;
+    if (l.isNegative) result.isNegative = true;
+    int carrier = 0, multi = 0;
+    for (size_t i = 0; i < l.digits.size(); i++) {
+        multi = l.digits[i] * r + carrier;
+        carrier = multi / l.BASE;
+        multi %= l.BASE;
+        if (i < result.digits.size()) result.digits[i] = multi;
+        else result.digits.push_back(multi);
+    }
+    while (carrier != 0) {
+        result.digits.push_back(carrier % result.BASE);
+        carrier /= result.BASE;
+    }
+    return result.removeZeros();
 }
 
 BigInt BigInt::schoolMultiply(const BigInt& l, const BigInt &r) {
@@ -297,22 +346,43 @@ BigInt BigInt::FFTMultiply(const BigInt& l, const BigInt& r) {
     return result.removeZeros();
 }
 
-BigInt BigInt::multiplyByInt(const BigInt& l, int r) {
-    if (r > l.BASE || r < 0) return l;
-    BigInt result;
-    if (l.isNegative) result.isNegative = true;
-    int carrier = 0, multi = 0;
+int BigInt::findDiv(const BigInt &l, const BigInt &r) {
+    int first = 0, last = l.BASE;
+    int count = last - first, step, it;
+    while (count > 0) {
+        step = count / 2;
+        it = first + step;
+        if (l >= multiplyByInt(r, it)) {
+            first = ++it;
+            count -= step + 1;
+        } else {
+            count = step;
+        }
+    }
+    return first - 1;
+}
+
+BigInt BigInt::schoolDivision(const BigInt &l, const BigInt &r) {
+    if (abs(l) < abs(r)) return BigInt("0");
+    if (r == BigInt("1")) return l;
+    if (r == BigInt("0")) return BigInt("NaN");
+    if (l.isNegative && !r.isNegative) return -schoolDivision(-l, r);
+    if (!l.isNegative && r.isNegative) return -schoolDivision(l, -r);
+    if (l.isNegative && r.isNegative) return schoolDivision(-l, -r);
+    if (l == r) return BigInt("1");
+
+    BigInt result, memory;
+    memory.digits.clear();
+    result.digits.clear();
+
     for (size_t i = 0; i < l.digits.size(); i++) {
-        multi = l.digits[i] * r + carrier;
-        carrier = multi / l.BASE;
-        multi %= l.BASE;
-        if (i < result.digits.size()) result.digits[i] = multi;
-        else result.digits.push_back(multi);
+        memory.digits.push_front(l.digits[l.digits.size() - 1 - i]);
+        int div = findDiv(memory, r);
+        result.digits.push_front(div);
+        memory = memory - multiplyByInt(r, div);
+        if (memory.digits.size() == 1 && memory.digits[0] == 0) memory.digits.clear();
     }
-    while (carrier != 0) {
-        result.digits.push_back(carrier % result.BASE);
-        carrier /= result.BASE;
-    }
+
     return result.removeZeros();
 }
 
