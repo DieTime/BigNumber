@@ -83,6 +83,10 @@ BigInt operator*(const BigInt &l, const BigInt &r) {
     return BigInt::FFTMultiply(l, r);
 }
 
+BigInt operator/(const BigInt &l, const BigInt &r) {
+    return BigInt::schoolDivision(l, r);
+}
+
 bool operator<(const BigInt &l, const BigInt &r) {
     if (l.isNegative && !r.isNegative) return true;
     if (!l.isNegative && r.isNegative) return false;
@@ -385,4 +389,6 @@ BigInt BigInt::schoolDivision(const BigInt &l, const BigInt &r) {
 
     return result.removeZeros();
 }
+
+
 

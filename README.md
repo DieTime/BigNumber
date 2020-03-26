@@ -1,3 +1,27 @@
+# Big Integer Library
+<p align="center">
+  <img src="https://i.ibb.co/VHbshgq/1.png" width="300">
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.0.0-b.svg" alt="version">
+</p>
+
+### About
+Library for mathematical calculations with long integers:
+- Addition
+- Subtraction
+- Multiplication
+- Division
+
+### Features
+- Karatsuba multiplication.
+- FFT multiplication.
+- Comparison of numbers.
+- Getting the result in text form.
+- Output to various streams
+
+### Example
+```cpp
 #include <iostream>
 #include <string>
 #include "BigInt/BigInt.h"
@@ -25,7 +49,7 @@ int main() {
     // Get string result
     string result = (A * B).str();
 
-    // Comparing
+    // Comparison
     cout << "Result of comparing: ";
     if (A > B){
         cout << "A > B" << endl;
@@ -37,3 +61,4 @@ int main() {
 
     return 0;
 }
+```
