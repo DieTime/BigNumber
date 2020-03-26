@@ -1,6 +1,6 @@
 # Big Integer Library
 <p align="center">
-  <img src="https://i.ibb.co/VHbshgq/1.png" width="300">
+  <img src="https://i.ibb.co/FbW0hFG/1.png" width="300">
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-b.svg" alt="version">
